@@ -27,6 +27,7 @@ if (!fs.existsSync(configPath)) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/Goal-Milma-Goal/',
   plugins: [
     react(),
     tailwindcss()
