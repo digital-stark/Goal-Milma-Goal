@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- GLOBAL REUSABLE HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'digital@stark.in' || 
+        request.auth.token.email == 'ahil.bs@stark.in' || 
+        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) && (
+          get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.approved == true ||
+          get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.email == 'digital@stark.in' ||
+          get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.email == 'ahil.bs@stark.in'
+        ))
+      );
+    }
+
+    // --- USERS COLLECTION RULES ---
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    match /admins/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update, delete: if isSignedIn() && (request.auth.token.email == 'digital@stark.in' || request.auth.token.email == 'ahil.bs@stark.in');
+    }
+
+    // --- LEADERBOARD COLLECTION RULES ---
+    match /leaderboard/{userId} {
+      allow read, write: if true;
+    }
+
+    // --- USERNAMES RESOLVER (Anti-Scrape) ---
+    match /usernames/{username} {
+      allow read, write: if true;
+    }
+
+    // --- MATCHES COLLECTION RULES ---
+    match /matches/{matchId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- PREDICTIONS COLLECTION RULES ---
+    match /predictions/{predictionId} {
+      allow read, write: if true;
+    }
+
+    // --- SETTINGS COLLECTION RULES ---
+    match /settings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

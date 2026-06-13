@@ -1,0 +1,6 @@
+{
+  "name": "Football Match Winner Prediction Contest",
+  "description": "Football Match Winner Prediction Contest application featuring static leaderboards, admin match creation, prediction submissions, and automatic user point calculations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

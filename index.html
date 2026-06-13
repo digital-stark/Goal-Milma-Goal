@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+    <script>
+      // Defensively patch window.fetch and globalThis.fetch to allow reassignment.
+      // This is necessary because in some sandboxed preview iframe environments,
+      // window.fetch has only a getter, causing polyfills or libraries that try
+      // to patch global fetch (like formdata-polyfill or node-fetch) to throw a Uncaught TypeError.
+      try {
+        let activeFetch = window.fetch || globalThis.fetch;
+        if (activeFetch) {
+          const fetchDescriptor = {
+            configurable: true,
+            enumerable: true,
+            get() {
+              return activeFetch;
+            },
+            set(newFetch) {
+              activeFetch = newFetch;
+            }
+          };
+          Object.defineProperty(window, 'fetch', fetchDescriptor);
+          Object.defineProperty(globalThis, 'fetch', fetchDescriptor);
+        }
+      } catch (e) {
+        console.warn("Failed to patch fetch for compatibility:", e);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account registration details and leaderboard statistics",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The Firebase Authentication UID" },
+        "fullname": { "type": "string", "description": "User's full name" },
+        "username": { "type": "string", "description": "Unique selected username" },
+        "email": { "type": "string", "description": "User's email address" },
+        "instagramUrl": { "type": "string", "description": "Instagram profile URL" },
+        "points": { "type": "integer", "description": "Total accumulated winner prediction points" },
+        "correctPredictions": { "type": "integer", "description": "Count of successfully guessed match winners" },
+        "isAdmin": { "type": "boolean", "description": "Whether the user has admin role privileges" }
+      },
+      "required": ["uid", "fullname", "username", "email"]
+    },
+    "Match": {
+      "title": "Football Match",
+      "description": "Football match created by Admin that users can predict on",
+      "type": "object",
+      "properties": {
+        "matchId": { "type": "string", "description": "Unique identifier of the match" },
+        "team1": { "type": "string", "description": "Name of team 1" },
+        "team2": { "type": "string", "description": "Name of team 2" },
+        "matchDate": { "type": "string", "description": "ISO-8601 Date and time string of the match" },
+        "imageUrl": { "type": "string", "description": "Web URL or base64 image data of the match badge" },
+        "isActive": { "type": "boolean", "description": "Whether the match is active and public-facing" },
+        "status": { "type": "string", "enum": ["scheduled", "completed"], "description": "Current status of the match" },
+        "winner": { "type": "string", "enum": ["team1", "team2", "none"], "description": "Winning team or none" }
+      },
+      "required": ["matchId", "team1", "team2", "matchDate", "isActive", "status", "winner"]
+    },
+    "Prediction": {
+      "title": "User Match Prediction",
+      "description": "Single winner prediction submitted by a user for a match",
+      "type": "object",
+      "properties": {
+        "predictionId": { "type": "string", "description": "Composed of userId_matchId" },
+        "userId": { "type": "string", "description": "UID of the predictor" },
+        "username": { "type": "string", "description": "Username of the predictor" },
+        "matchId": { "type": "string", "description": "ID of the predicted match" },
+        "predictedWinner": { "type": "string", "enum": ["team1", "team2"], "description": "User predicted winning team" },
+        "pointsEarned": { "type": "integer", "description": "Points received for this prediction" },
+        "isProcessed": { "type": "boolean", "description": "Whether prediction outcome has been resolved by Admin" },
+        "createdAt": { "type": "string", "description": "Submission ISO timestamp" }
+      },
+      "required": ["predictionId", "userId", "username", "matchId", "predictedWinner", "pointsEarned", "isProcessed", "createdAt"]
+    },
+    "HeroSettings": {
+      "title": "Hero Section Design and Copy Configurations",
+      "description": "Media backdrop assets and header text copywriting with layout configurations",
+      "type": "object",
+      "properties": {
+        "heroBgType": { "type": "string", "enum": ["image", "video", "youtube"], "description": "Type of visual background media" },
+        "heroBgUrl": { "type": "string", "description": "URL or base64 resource of backdrop media" },
+        "heroCentralLogo": { "type": "string", "description": "Custom secondary branding logo image URL" },
+        "heroTextTitle": { "type": "string", "description": "Top uppercase text title header" },
+        "heroTextSubtitle": { "type": "string", "description": "Green or gradient highlighted text phrase" },
+        "heroTextDesc": { "type": "string", "description": "Body sentence paragraph copy description" },
+        "heroBtnText": { "type": "string", "description": "Main CTA action button labels" },
+        "heroBgOpacity": { "type": "integer", "description": "Background media opacity percentage (0-100)" },
+        "heroPaddingTop": { "type": "integer", "description": "Padding top of the hero section in pixels" },
+        "heroPaddingBottom": { "type": "integer", "description": "Padding bottom of the hero section in pixels" },
+        "heroBtnSpacing": { "type": "integer", "description": "Margin spacing above the main action button in pixels" },
+        "heroTextAlignment": { "type": "string", "enum": ["left", "center", "right"], "description": "Horizontal alignment of the text content" }
+      },
+      "required": ["heroBgType", "heroBgUrl", "heroTextTitle", "heroTextSubtitle", "heroTextDesc", "heroBtnText"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "User profile records stored with Auth UID keys"
+    },
+    "matches/{matchId}": {
+      "schema": { "$ref": "Match" },
+      "description": "Admin controllable football matches"
+    },
+    "predictions/{predictionId}": {
+      "schema": { "$ref": "Prediction" },
+      "description": "Double-submission guarded match predictions"
+    },
+    "settings/{settingsId}": {
+      "schema": { "$ref": "HeroSettings" },
+      "description": "Persistent custom branding and copy styles for presentation banner"
+    }
+  }
+}
